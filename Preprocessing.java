@@ -17,37 +17,46 @@ public class Preprocessing {
             "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"
     ));
 
+    // Method to reduce elongated words like "soooo" → "soo"
+    public static String reduceElongation(String word) {
+        return word.replaceAll("(.)\\1{2,}", "$1$1"); // keep at most 2 repeated characters
+    }
+
+    // Preprocessing method
     public static String preprocessText(String text) {
-        // Remove URLs
+        // Step 1: Remove URLs
         text = text.replaceAll("http\\S+", "");
 
-        // Remove special characters and punctuation
+        // Step 2: Remove special characters and punctuation
         text = text.replaceAll("[^\\w\\s]", "");
 
-        // Remove extra whitespaces
+        // Step 3: Remove extra whitespaces
         text = text.replaceAll("\\s+", " ").trim();
 
-        // Remove numeric values
+        // Step 4: Remove numeric values
         text = text.replaceAll("\\d+", "");
 
-        // Convert to lowercase
+        // Step 5: Convert to lowercase
         text = text.toLowerCase();
 
-        // Remove stopwords
+        // Step 6–8: Reduce elongation and remove stopwords
         StringBuilder sb = new StringBuilder();
         for (String word : text.split(" ")) {
+            word = reduceElongation(word);
             if (!stopwords.contains(word)) {
                 sb.append(word).append(" ");
             }
         }
+
         text = sb.toString().trim();
 
-        // Step 9: Remove non-alphanumeric characters again (just in case)
+        // Step 9: Remove any remaining non-alphabetic characters (safety step)
         text = text.replaceAll("[^a-zA-Z\\s]", "");
 
         return text;
     }
 
+    // Main file reading and writing logic
     public static void main(String[] args) {
         String inputFile = "D:\\Emotional-Analysis\\DataFile\\emotion.csv";
         String outputFile = "D:\\Emotional-Analysis\\DataFile\\emotion_clean.csv";
@@ -74,12 +83,10 @@ public class Preprocessing {
                 String cleanedText = preprocessText(text);
                 storeFile.write(id + "," + cleanedText + "," + label + "\n");
             }
-            System.out.println("complete preprocessing");
+            System.out.println("Complete preprocessing");
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 }
-
-
